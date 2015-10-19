@@ -2,7 +2,7 @@ excerpt_separator: ""
 pygments: true
 markdown: kramdown
 url: http://recursionbane.github.io
-title: RecursionBane's Recursive Blog
+title: Recursion Bane's Recursive Blog
 tagline: A blog of cyclic proportions
 description: A blog covering technology, programming, and computation happiness.
 paginate: 20
