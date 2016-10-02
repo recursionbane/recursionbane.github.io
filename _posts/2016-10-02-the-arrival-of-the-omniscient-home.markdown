@@ -17,4 +17,8 @@ In a sense, Amazon's Echo makes SmartThings a more usable product that SmartThin
 
 People are deriding Amazon's decision to sell a six-pack (and a twelve-pack) of the Echo Dot as excessive consumerism, and that no one should really want or need an Echo in every room of the house. They're missing the point entirely.
 
-At $250, you can get your entire house to listen to you. The Dot has been up
+At $250, you can get your entire house to listen to you. The Dot has been updated to be able to handoff a conversation across overlapping fields of control seamlessly, so only one Dot will ever respond to you. With another $750, you can wire up the majority of your home with SmartThings. $1000 now gets you a true smart home that's ever-listening, and all-knowing.
+
+Just five years ago, this level of control would have involved wiring up your ceilings with microphone arrays, a microcontroller in every room to corral their signals and perform noise and echo-cancelation, and a beefy central desktop to perform voice recognition with rigid keywords and drive switches across your home. This could easily run you over $10,000 for a larger home. The fact that you can get this done at a tenth the cost is game-changing.
+
+The Echo Dot is the first large-scale assault to take over your home and drag it into the connected universe. At $50, it might just work.
