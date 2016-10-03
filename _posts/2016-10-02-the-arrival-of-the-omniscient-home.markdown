@@ -1,7 +1,9 @@
 ---
-published: false
-title: The arrival of the omniscient home
+published: true
+title: The arrival of the responsive home
 layout: post
+tags: [echo, dot, echodot, amazon, alexa, connected, home]
+categories: [home, ai]
 ---
 Most people are treating the 2nd-gen Amazon Echo Dot as just another product refresh. Here's why they're wrong, and it actually means much, much more.
 
@@ -13,12 +15,12 @@ This is why interacting with the Echo Dot is so refreshing. It's not because Ale
 
 The second killer feature is integration with Samsung SmartThings, one of the leading providers of home automation today. SmartThings works with a wide array of light switches, wall plugs, door locks and thermostats, so you can get a mostly-automated home with a dozen or so Things connected to your Hub. Getting Alexa to _see_ your devices is as simple as saying "Alexa, discover". Alexa can then make your home reasonably responsive to your whims. Everything from turning on the kettle or kitchen lights, to setting the temperature, is as easy as a natural-language voice command.
 
-In a sense, Amazon's Echo makes SmartThings a more usable product that SmartThings ever was.
+With the addition of natural-language control, Amazon's Echo makes SmartThings a more usable product that SmartThings, by itself, ever was.
 
 People are deriding Amazon's decision to sell a six-pack (and a twelve-pack) of the Echo Dot as excessive consumerism, and that no one should really want or need an Echo in every room of the house. They're missing the point entirely.
 
-At $250, you can get your entire house to listen to you. The Dot has been updated to be able to handoff a conversation across overlapping fields of control seamlessly, so only one Dot will ever respond to you. With another $750, you can wire up the majority of your home with SmartThings. $1000 now gets you a true smart home that's ever-listening, and all-knowing.
+At $250, you can get your entire house to listen to you. The Dot has been updated to be able to handoff a conversation across overlapping fields of control seamlessly, so only one Dot will ever respond to you. With another $750, you can wire up the majority of your home with SmartThings. $1000 now gets you a true smart home that's ever-listening, and all-knowing. Presence detection is a native feature in SmartThings, and can easily be enhanced by Alexa's voice and speaker recognition.
 
-Just five years ago, this level of control would have involved wiring up your ceilings with microphone arrays, a microcontroller in every room to corral their signals and perform noise and echo-cancelation, and a beefy central desktop to perform voice recognition with rigid keywords and drive switches across your home. This could easily run you over $10,000 for a larger home. The fact that you can get this done at a tenth the cost is game-changing.
+Just five years ago, this level of control would have involved wiring up your ceilings with microphone arrays, a microcontroller in every room to corral their signals and perform noise and echo-cancelation, and a beefy central desktop to perform voice recognition with rigid keywords that would eventually drive switches across your home. This could easily run you over $10,000 for a larger home. The fact that you can get this done at a tenth the cost is game-changing.
 
-The Echo Dot is the first large-scale assault to take over your home and drag it into the connected universe. At $50, it might just work.
+The second-gen Echo Dot is the first large-scale assault to take over your home and drag it into the connected universe. At $50, it may have already won the battle.
