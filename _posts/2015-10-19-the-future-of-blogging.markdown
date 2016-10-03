@@ -1,5 +1,5 @@
 ---
-published: true
+published: false
 title: The Future of Blogging
 layout: post
 tags: [intro, blogging]
