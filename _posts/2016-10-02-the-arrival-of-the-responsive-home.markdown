@@ -7,7 +7,7 @@ categories: [home, ai]
 ---
 Most people are treating the 2nd-gen Amazon Echo Dot as just another product refresh. Here's why they're wrong, and why it represents the first cohesive assault to take over your home.
 
-The original Amazon Echo was expensive, clocking in at $180, although it was paired with a passable Bluetooth speaker. Amazon later lopped off the top of the Echo, and sold it as the Echo Dot for $90. The Echo Dot had a built-in speaker (although it was tinny), but, more importantly, it contained the identical far-field microphone array that its larger sibling carried.
+The original Amazon Echo was expensive, clocking in at $180, although it was paired with a passable speaker. Amazon later lopped off the top of the Echo, and sold it as the Echo Dot for $90. The Echo Dot had a built-in speaker (although it was tinny), but, more importantly, it contained the identical far-field microphone array that its larger sibling carried.
 
 If you've attempted to address your smartphone from across the room, you'd have run into one of the more fundamental design limitations of smartphones today: their microphone array (yes, it is more than one microphone on most phones today) is designed to _isolate_ you, the speaker, when you are near your device to the intentional detriment of noise that's further away. Phones, then, specialize in _near-field_ listening.
 
