@@ -15,7 +15,7 @@ This is why interacting with the Echo Dot is so refreshing. It's not because Ale
 
 The second killer feature is integration with Samsung SmartThings, one of the leading providers of home automation today. SmartThings works with a wide array of light switches, wall plugs, door locks and thermostats, so you can get a mostly-automated home with a dozen or so Things connected to your Hub. Getting Alexa to _see_ your devices is as simple as saying "Alexa, discover". Alexa can then make your home reasonably responsive to your whims. Everything from turning on the kettle or kitchen lights, to setting the temperature, is as easy as a natural-language voice command.
 
-With the addition of natural-language control, Amazon's Echo makes SmartThings a more usable product that SmartThings, by itself, ever was.
+With the addition of natural-language control, Amazon's Echo makes SmartThings a more usable product that SmartThings, by itself, ever was. Few people want to set up complex _scenes_ and rules to get the most out of their SmartThings. Voice control, on the other hand, _feels_ futuristic, and possesses a greater emotional payoff than fiddling with a smartphone app to get your home to do your bidding.
 
 People are deriding Amazon's decision to sell a six-pack (and a twelve-pack) of the Echo Dot as excessive consumerism, and that no one should really want or need an Echo in every room of the house. They're missing the point entirely.
 
