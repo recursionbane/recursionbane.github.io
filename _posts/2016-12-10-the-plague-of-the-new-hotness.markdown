@@ -12,4 +12,4 @@ Enterprise doesn't want a buggy product today with infinite future potential. Th
 
 Lately, there has been more vocal feelings among certain talented engineers that they are somehow misfits in the industry. They may feel this way for a variety of reasons: unwillingness to move fast and break things, the inability to focus on a coding sprint by putting aside the big-picture view, or their peers assessing their net worth based on their number of code commits.
 
-Do not be disheartened. Considered thought, flexibility in planning and robust commits are highly valuable skills in enterprise. Keep your chin up, and reevalhate your choice of employer before you bury your passion.
+Do not be disheartened. Considered thought, flexibility in planning and robust commits are highly valuable skills in enterprise. Keep your chin up, and reevaluate your choice of employer before you bury your passion.
