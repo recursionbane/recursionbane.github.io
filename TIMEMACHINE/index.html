@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TIMEMACHINE</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="vignette"></div>
+
+  <main>
+    <header>
+      <h1>TIMEMACHINE</h1>
+      <p class="tag">Type an era, year, century, person, or event. Travel.</p>
+    </header>
+
+    <form id="travel-form" autocomplete="off">
+      <input
+        id="query"
+        name="query"
+        type="text"
+        placeholder="e.g. Renaissance, 1066, Edo period, Pompeii, Apollo 11"
+        required
+      />
+      <button type="submit">Travel</button>
+    </form>
+
+    <section id="result" hidden>
+      <div class="card">
+        <h2 id="title"></h2>
+        <p id="extract"></p>
+        <div class="actions">
+          <a id="britannica" href="#" target="_blank" rel="noopener noreferrer">
+            Read on Britannica &#8599;
+          </a>
+          <a id="wiki" href="#" target="_blank" rel="noopener noreferrer">
+            Source: Wikipedia &#8599;
+          </a>
+        </div>
+        <p id="credit" class="credit"></p>
+      </div>
+    </section>
+
+    <section id="error" hidden>
+      <div class="card error">
+        <p id="error-msg"></p>
+      </div>
+    </section>
+
+    <div id="loading" hidden>
+      <div class="spinner"></div>
+      <p>Winding the gears&hellip;</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Text via Wikipedia (CC BY-SA). Imagery via Wikimedia Commons. Britannica links open in a new tab.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
