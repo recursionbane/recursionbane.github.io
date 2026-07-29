@@ -102,10 +102,10 @@ function setupRenderer() {
   game.isLowPower=matchMedia("(pointer:coarse)").matches||(navigator.deviceMemory&&navigator.deviceMemory<=4);
   game.scene=new THREE.Scene();game.camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.08,190);
   game.renderer=new THREE.WebGLRenderer({antialias:!game.isLowPower,powerPreference:"high-performance",alpha:false});game.renderer.setSize(innerWidth,innerHeight);game.renderer.setPixelRatio(game.isLowPower?1:Math.min(devicePixelRatio,1.35));
-  game.renderer.shadowMap.enabled=true;game.renderer.shadowMap.type=THREE.PCFSoftShadowMap;game.renderer.outputEncoding=THREE.sRGBEncoding;game.renderer.toneMapping=THREE.ACESFilmicToneMapping;game.renderer.toneMappingExposure=1.02;
+  game.renderer.shadowMap.enabled=!game.isLowPower;game.renderer.shadowMap.type=THREE.PCFSoftShadowMap;game.renderer.outputEncoding=THREE.sRGBEncoding;game.renderer.toneMapping=THREE.ACESFilmicToneMapping;game.renderer.toneMappingExposure=1.02;
   game.renderer.domElement.id="game-canvas";$("#game-root").appendChild(game.renderer.domElement);game.ray=new THREE.Raycaster();game.collisionRay=new THREE.Raycaster();game.shared.sparkGeometry=new THREE.BoxGeometry(.045,.045,.045);
   const theme=THEMES[game.mapName],hemisphere=new THREE.HemisphereLight(theme.sun,0x17101a,1.55);game.scene.add(hemisphere);
-  const sun=new THREE.DirectionalLight(theme.sun,2.1);sun.position.set(-22,32,16);sun.castShadow=true;sun.shadow.mapSize.set(game.isLowPower?512:1024,game.isLowPower?512:1024);sun.shadow.camera.left=-38;sun.shadow.camera.right=38;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.camera.near=.5;sun.shadow.camera.far=90;sun.shadow.bias=-.00035;game.scene.add(sun);
+  const sun=new THREE.DirectionalLight(theme.sun,2.1);sun.position.set(-22,32,16);sun.castShadow=!game.isLowPower;sun.shadow.mapSize.set(game.isLowPower?512:1024,game.isLowPower?512:1024);sun.shadow.camera.left=-38;sun.shadow.camera.right=38;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.camera.near=.5;sun.shadow.camera.far=90;sun.shadow.bias=-.00035;game.scene.add(sun);
   game.renderer.domElement.addEventListener("webglcontextlost",(event)=>{event.preventDefault();game.running=false;showFatal("The graphics chip reset. Reload the page to restart the arena.");},{once:true});
 }
 
