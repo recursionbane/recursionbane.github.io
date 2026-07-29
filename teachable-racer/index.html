@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Motion Racing League</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<style>
+:root{color-scheme:dark;--cyan:#47e7ff;--pink:#ff4f9a;--yellow:#ffe66d;--panel:rgba(8,15,30,.88)}
+*{box-sizing:border-box}body{margin:0;background:#050914;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden}
+canvas#game{display:block;width:100vw;height:100vh;touch-action:none}
+#hud{position:fixed;inset:0;pointer-events:none;padding:14px;display:flex;justify-content:space-between;align-items:flex-start}
+.card{background:var(--panel);border:1px solid #ffffff25;border-radius:14px;padding:10px 14px;box-shadow:0 12px 40px #0008;backdrop-filter:blur(8px)}
+.big{font-size:24px;font-weight:900}.muted{color:#aeb8ca;font-size:12px}.accent{color:var(--cyan)}
+#controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;flex-wrap:wrap;justify-content:center;width:min(94vw,800px)}
+button,select,input{background:#101a31;color:#fff;border:1px solid #ffffff2c;border-radius:10px;padding:10px 12px;font-weight:750}button{cursor:pointer}button.primary{background:linear-gradient(135deg,#0cbcd8,#5555ff)}button:hover{filter:brightness(1.15)}
+#cameraBox{position:fixed;right:14px;bottom:78px;width:160px;background:var(--panel);border:1px solid #ffffff25;border-radius:14px;padding:8px;display:none}
+#webcam-container canvas{width:144px!important;height:108px!important;object-fit:cover;border-radius:9px;transform:scaleX(-1)}
+#prediction{font-size:12px;margin-top:5px}.bar{height:5px;background:#25304a;border-radius:4px;margin:3px 0;overflow:hidden}.fill{height:100%;background:var(--cyan)}
+#menu{position:fixed;inset:0;background:radial-gradient(circle at 50% 30%,#142a5d,#050914 65%);display:grid;place-items:center;padding:18px}
+#menu .wrap{width:min(680px,95vw);text-align:center}.logo{font-size:clamp(38px,8vw,78px);line-height:.9;font-weight:1000;letter-spacing:-4px;text-shadow:0 0 24px #2fdcff88}.logo span{color:var(--pink)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:22px 0}.mode{padding:18px;text-align:left;min-height:100px}.mode.active{outline:2px solid var(--cyan);background:#15254b}.mode b{font-size:19px}.mode small{display:block;color:#aeb8ca;margin-top:6px}
+#countdown{position:fixed;inset:0;display:none;place-items:center;font-size:120px;font-weight:1000;text-shadow:0 0 40px #46e7ff}
+#toast{position:fixed;top:20%;left:50%;transform:translateX(-50%);background:#0b1326dd;border:1px solid #fff3;border-radius:14px;padding:12px 18px;display:none;font-weight:800}
+@media(max-width:600px){#cameraBox{width:120px}#webcam-container canvas{width:104px!important;height:78px!important}.grid{grid-template-columns:1fr}.card.big{font-size:18px}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="menu"><div class="wrap">
+  <div class="logo">MOTION <span>RACING</span></div>
+  <p>Race with body gestures using your Google Teachable Machine model.</p>
+  <div class="grid">
+    <button class="mode active" data-mode="5v5"><b>5 vs 5 Grand Prix</b><small>You + 4 teammates against 5 rival NPC racers.</small></button>
+    <button class="mode" data-mode="2v2"><b>2 vs 2 Sprint</b><small>A shorter team race with four cars.</small></button>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button id="startCamera" class="primary">Enable Camera Controls</button>
+    <button id="startKeyboard">Play with Keyboard</button>
+  </div>
+  <p class="muted">Camera labels: forward, backward, left, right. Keyboard fallback: arrow keys or WASD.</p>
+</div></div>
+<div id="hud" style="display:none">
+ <div class="card"><div class="muted">POSITION</div><div class="big"><span id="pos">1</span>/<span id="total">10</span></div><div class="muted">LAP <span id="lap">1</span>/3</div></div>
+ <div class="card" style="text-align:right"><div class="muted">SPEED</div><div class="big"><span id="speed">0</span> km/h</div><div class="accent" id="controlLabel">Keyboard</div></div>
+</div>
+<div id="cameraBox"><div id="webcam-container"></div><div id="prediction">Loading model…</div></div>
+<div id="controls" style="display:none"><button id="restart">Restart</button><button id="cameraToggle">Camera</button><input id="room" maxlength="6" placeholder="Room code"/><button id="join">Join</button><button id="exit">Menu</button></div>
+<div id="countdown">3</div><div id="toast"></div>
+<script>
+const MODEL='https://teachablemachine.withgoogle.com/models/tA3k5fgDZ/';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+let W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),mode='5v5',running=false,started=false;
+let model,webcam,cameraOn=false,prediction={forward:0,backward:0,left:0,right:0};
+const keys={}; addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+function resize(){W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+const track={cx:0,cy:0,rx:0,ry:0,width:0};let cars=[],player,finishOrder=[];
+const teamColors=['#47e7ff','#5d9cff','#3ce6a8','#a985ff','#76efff','#ff4f9a','#ff8855','#ffcc55','#ff6680','#e65cff'];
+function setupTrack(){track.cx=W/2;track.cy=H/2;track.rx=Math.min(W*.38,470);track.ry=Math.min(H*.34,280);track.width=Math.max(80,Math.min(W,H)*.17)}
+function pointAt(t,lane=0){const rx=track.rx+lane,ry=track.ry+lane*.55;return{x:track.cx+Math.cos(t)*rx,y:track.cy+Math.sin(t)*ry}}
+function makeCars(){setupTrack();cars=[];finishOrder=[];const n=mode==='5v5'?10:4;document.getElementById('total').textContent=n;for(let i=0;i<n;i++){let t=Math.PI+.12*(i%5);let lane=(i%2?1:-1)*(track.width*.18)+(Math.floor(i/2)%2)*8;let p=pointAt(t,lane);cars.push({x:p.x,y:p.y,t,angle:t+Math.PI/2,speed:0,lane,color:teamColors[i],name:i===0?'YOU':(i<Math.ceil(n/2)?'ALLY '+i:'RIVAL '+(i-Math.ceil(n/2)+1)),lap:1,progress:0,finished:false,skill:.72+Math.random()*.2,wobble:Math.random()*99})}player=cars[0]}
+function controls(){let throttle=0,steer=0;if(cameraOn){const best=Object.entries(prediction).sort((a,b)=>b[1]-a[1])[0];if(best&&best[1]>.55){if(best[0]==='forward')throttle=1;if(best[0]==='backward')throttle=-1;if(best[0]==='left')steer=-1;if(best[0]==='right')steer=1}}if(keys.arrowup||keys.w)throttle=1;if(keys.arrowdown||keys.s)throttle=-1;if(keys.arrowleft||keys.a)steer=-1;if(keys.arrowright||keys.d)steer=1;return{throttle,steer}}
+function norm(a){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a}
+function update(dt){if(!started)return;const c=controls();player.speed+=c.throttle*190*dt;player.speed*=Math.pow(.985,dt*60);player.speed=Math.max(-45,Math.min(230,player.speed));player.angle+=c.steer*(1.9+Math.abs(player.speed)/180)*dt*Math.sign(player.speed||1);player.x+=Math.cos(player.angle)*player.speed*dt;player.y+=Math.sin(player.angle)*player.speed*dt;
+ // guide player back onto the racing band gently
+ const dx=(player.x-track.cx)/track.rx,dy=(player.y-track.cy)/track.ry;const radial=Math.sqrt(dx*dx+dy*dy);if(radial<.68||radial>1.32){player.speed*=.95;const a=Math.atan2((player.y-track.cy)/track.ry,(player.x-track.cx)/track.rx),target=pointAt(a,0);player.x+=(target.x-player.x)*dt*.7;player.y+=(target.y-player.y)*dt*.7}
+ updateProgress(player);
+ for(let i=1;i<cars.length;i++){const car=cars[i];if(car.finished)continue;const look=.16+car.skill*.08;const targetT=car.t+look;const target=pointAt(targetT,car.lane+Math.sin(performance.now()/800+car.wobble)*8);const desired=Math.atan2(target.y-car.y,target.x-car.x);car.angle+=norm(desired-car.angle)*dt*(2.2+car.skill);const base=145+car.skill*55+Math.sin(performance.now()/1100+car.wobble)*10;car.speed+=(base-car.speed)*dt*1.8;car.x+=Math.cos(car.angle)*car.speed*dt;car.y+=Math.sin(car.angle)*car.speed*dt;updateProgress(car)}
+ cars.sort((a,b)=>rankValue(b)-rankValue(a));document.getElementById('pos').textContent=cars.indexOf(player)+1;document.getElementById('lap').textContent=Math.min(player.lap,3);document.getElementById('speed').textContent=Math.max(0,Math.round(player.speed));if(player.finished){started=false;toast('FINISHED — '+ordinal(finishOrder.indexOf(player)+1)+' place!')}}
+function updateProgress(car){const old=car.t;let t=Math.atan2((car.y-track.cy)/track.ry,(car.x-track.cx)/track.rx);if(t<0)t+=Math.PI*2;let oldN=old%(Math.PI*2);if(oldN<0)oldN+=Math.PI*2;if(oldN>5.3&&t<.9&&car.speed>0){car.lap++;if(car.lap>3&&!car.finished){car.finished=true;finishOrder.push(car)}}car.t=t;car.progress=(car.lap-1)*Math.PI*2+t}
+function rankValue(c){return c.finished?1000-finishOrder.indexOf(c):c.progress}
+function ordinal(n){return n+(n%10===1&&n%100!==11?'st':n%10===2&&n%100!==12?'nd':n%10===3&&n%100!==13?'rd':'th')}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#071424';ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(track.cx,track.cy);ctx.fillStyle='#1c6c46';ctx.beginPath();ctx.ellipse(0,0,track.rx+track.width/2,track.ry+track.width/2,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#272d3b';ctx.beginPath();ctx.ellipse(0,0,track.rx+track.width/2,track.ry+track.width/2,0,0,Math.PI*2);ctx.ellipse(0,0,track.rx-track.width/2,track.ry-track.width/2,0,0,Math.PI*2,true);ctx.fill();ctx.strokeStyle='#fff8';ctx.lineWidth=3;ctx.setLineDash([18,18]);ctx.beginPath();ctx.ellipse(0,0,track.rx,track.ry,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+ // finish line
+ const f=pointAt(0);ctx.save();ctx.translate(f.x,f.y);ctx.rotate(Math.PI/2);for(let y=-track.width/2;y<track.width/2;y+=12)for(let x=-12;x<12;x+=12){ctx.fillStyle=((x+y)/12)%2?'#fff':'#111';ctx.fillRect(x,y,12,12)}ctx.restore();
+ for(const car of cars)drawCar(car);requestAnimationFrame(loop)}
+function drawCar(c){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.angle);ctx.shadowColor=c.color;ctx.shadowBlur=c===player?18:7;ctx.fillStyle=c.color;ctx.beginPath();ctx.roundRect(-17,-10,34,20,6);ctx.fill();ctx.fillStyle='#0a1020';ctx.fillRect(-4,-8,11,16);ctx.fillStyle='#fff';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(c===player?'YOU':c.name.split(' ')[0],0,-15);ctx.restore()}
+let last=performance.now();function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;if(running)update(dt);draw()}
+async function initCamera(){try{document.getElementById('cameraBox').style.display='block';document.getElementById('prediction').textContent='Loading Teachable Machine…';model=await tmImage.load(MODEL+'model.json',MODEL+'metadata.json');webcam=new tmImage.Webcam(200,150,true);await webcam.setup({facingMode:'user'});await webcam.play();document.getElementById('webcam-container').replaceChildren(webcam.canvas);cameraOn=true;predictLoop();return true}catch(e){console.error(e);toast('Camera/model could not start. Keyboard controls enabled.');cameraOn=false;return false}}
+async function predictLoop(){if(!cameraOn||!webcam||!model)return;webcam.update();const p=await model.predict(webcam.canvas);prediction={forward:0,backward:0,left:0,right:0};for(const q of p){const k=q.className.toLowerCase().trim();if(k in prediction)prediction[k]=q.probability}const sorted=Object.entries(prediction).sort((a,b)=>b[1]-a[1]);document.getElementById('prediction').innerHTML=sorted.map(([k,v])=>`${k}: ${Math.round(v*100)}%<div class="bar"><div class="fill" style="width:${v*100}%"></div></div>`).join('');document.getElementById('controlLabel').textContent='Gesture: '+sorted[0][0];requestAnimationFrame(predictLoop)}
+function startGame(){document.getElementById('menu').style.display='none';document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';running=true;makeCars();started=false;let n=3;const cd=document.getElementById('countdown');cd.style.display='grid';cd.textContent=n;const timer=setInterval(()=>{n--;if(n>0)cd.textContent=n;else if(n===0)cd.textContent='GO!';else{clearInterval(timer);cd.style.display='none';started=true}},750)}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',3000)}
+document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));b.classList.add('active');mode=b.dataset.mode});
+document.getElementById('startCamera').onclick=async()=>{await initCamera();startGame()};document.getElementById('startKeyboard').onclick=startGame;document.getElementById('restart').onclick=startGame;document.getElementById('cameraToggle').onclick=async()=>{if(cameraOn){cameraOn=false;webcam&&webcam.stop();document.getElementById('cameraBox').style.display='none';document.getElementById('controlLabel').textContent='Keyboard'}else await initCamera()};
+document.getElementById('exit').onclick=()=>location.reload();document.getElementById('join').onclick=()=>{const code=document.getElementById('room').value.trim().toUpperCase();if(!code)return toast('Enter a room code.');localStorage.setItem('motion-racing-room',code);toast('Joined room '+code+' — local prototype lobby ready!')};
+setupTrack();makeCars();draw();
+</script>
+</body>
+</html>
