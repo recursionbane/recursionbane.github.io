@@ -4,35 +4,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070b14">
-<title>Motion Strike</title>
-<link rel="stylesheet" href="style.css?v=4">
+<title>Motion Strike Arena</title>
+<link rel="stylesheet" href="style-v5.css?v=5">
 </head>
 <body>
 <div id="game-root"></div>
 
 <div id="menu" class="screen">
-  <div class="card">
+  <div class="card menu-card">
     <div class="logo-row">
       <div>
         <h1 class="title">MOTION<br>STRIKE</h1>
-        <div class="subtitle">A 3D team arena with pose controls, touch controls, and bots.</div>
+        <div class="subtitle">Rivals-style elimination arena. Knock out the whole enemy team to win.</div>
       </div>
-      <div class="badge">Graphics Update</div>
+      <div class="badge">Arena Update</div>
     </div>
+    <div class="objective-banner"><b>GOAL:</b> eliminate every opponent. There are no respawns during a round.</div>
     <div class="grid">
-      <div><label for="mode">Mode</label><select id="mode"><option value="2">2v2 Rival</option><option value="5">5v5 Squad</option></select></div>
-      <div><label for="map">Map</label><select id="map"><option value="yard">Neon Yard</option><option value="canyon">Dust Canyon</option><option value="ice">Polar Station</option></select></div>
+      <div><label for="mode">Mode</label><select id="mode"><option value="1">1v1 Duel</option><option value="2" selected>2v2 Rivals</option><option value="5">5v5 Squad</option></select></div>
+      <div><label for="map">Arena</label><select id="map"><option value="yard">Neon Foundry</option><option value="canyon">Sunset Canyon</option><option value="ice">Glacier Lab</option></select></div>
       <div><label for="team">Team</label><select id="team"><option value="blue">Blue</option><option value="red">Red</option></select></div>
-      <div><label for="controls">Controls</label><select id="controls"><option value="keys">Keyboard / Touch</option><option value="camera">Teachable Machine Camera</option></select></div>
+      <div><label for="controls">Controls</label><select id="controls"><option value="keys">Keyboard / Touch</option><option value="camera">Teachable Machine Motion</option></select></div>
       <div class="wide">
-        <label for="party">Party code (bots fill empty spots)</label>
-        <div class="row"><input id="party" maxlength="12" placeholder="Optional code"><button id="generate" class="secondary" style="width:170px">Generate</button></div>
+        <label for="party">Party code (bots fill empty slots)</label>
+        <div class="row"><input id="party" maxlength="12" placeholder="Optional code"><button id="generate" class="secondary short-button">Generate</button></div>
       </div>
       <div id="status" class="wide status">Ready.</div>
-      <button id="start" class="wide">START MATCH</button>
+      <button id="start" class="wide start-button">START ROUND</button>
       <div class="wide hint">
-        <b>Touch:</b> left stick moves · swipe the right side to look around · buttons shoot, jump, roll, reload, switch weapons, and scope.<br>
-        <b>Keyboard:</b> WASD/arrows move · mouse looks · click shoots · R reloads · 1/2 switches · Space jumps · Shift rolls · right-click scopes.
+        <b>Touch:</b> left stick moves · swipe the right side to look · use the action buttons.<br>
+        <b>Keyboard:</b> WASD/arrows move · mouse looks · click shoots · R reloads · 1/2 switches · Space jumps · Shift rolls · right-click scopes.<br>
+        Walk over floating <b>potions</b> and <b>disguises</b> to collect them.
       </div>
     </div>
   </div>
@@ -40,21 +42,35 @@
 
 <div id="hud">
   <div class="hud-top">
-    <div class="pill"><span class="blue">BLUE <b id="blue-score">0</b></span> — <span class="red"><b id="red-score">0</b> RED</span></div>
-    <div id="timer" class="pill">03:00</div>
+    <div class="pill alive-pill"><span class="blue">BLUE <b id="blue-alive">2</b></span><span class="alive-label"> ALIVE</span> — <span class="red"><b id="red-alive">2</b> RED</span></div>
+    <div id="round-objective" class="pill objective-pill">ELIMINATE THE ENEMY TEAM</div>
+    <div id="timer" class="pill">02:30</div>
   </div>
+
   <div id="crosshair"></div><div id="hit-marker"></div>
   <div id="action"></div><div id="kill-feed"></div><div id="damage-vignette"></div>
+  <div id="spectating">YOU ARE OUT — SPECTATING A TEAMMATE</div>
+
   <div id="camera-panel">
     <div id="webcam"></div>
     <button id="enable-camera" class="secondary">ENABLE CAMERA</button>
     <div id="prediction">Camera is off.</div>
+    <div id="motion-bars"></div>
+    <div class="camera-actions">
+      <button id="open-motion-lab" class="secondary mini-button">MOTION LAB</button>
+      <label class="threshold-label">CONFIDENCE <span id="threshold-value">86%</span><input id="gesture-threshold" type="range" min="70" max="96" value="86"></label>
+    </div>
   </div>
+
   <div id="swipe-tip">Swipe the right side to look 👆</div>
+
+  <div id="effects-hud"></div>
+
   <div class="hud-bottom">
     <div class="health-wrap">
-      <div class="small">HEALTH <span id="health-number">100</span></div>
-      <div class="bar"><div id="health-bar"></div></div>
+      <div class="stat-row"><span>HEALTH <b id="health-number">100</b></span><span>SHIELD <b id="shield-number">0</b></span></div>
+      <div class="bar health"><div id="health-bar"></div></div>
+      <div class="bar shield"><div id="shield-bar"></div></div>
       <div id="weapon-name" class="small">RIFLE</div>
     </div>
     <div class="ammo-panel">
@@ -62,6 +78,7 @@
       <div class="small">AMMO</div>
     </div>
   </div>
+
   <div class="mobile-controls">
     <div id="joystick"><div id="joystick-nub"></div></div>
     <div class="mobile-buttons">
@@ -69,16 +86,52 @@
       <button id="mobile-fire" class="primary">FIRE</button>
       <button id="mobile-roll">ROLL</button>
       <button id="mobile-reload">RELOAD</button>
-      <button id="mobile-switch">SWITCH</button>
+      <button id="mobile-switch">SNIPER</button>
       <button id="mobile-scope">SCOPE</button>
     </div>
   </div>
 </div>
 
 <div id="scope"></div>
+
+<div id="round-result" class="overlay hidden">
+  <div class="result-card">
+    <div id="result-kicker" class="result-kicker">ROUND OVER</div>
+    <h2 id="result-title">BLUE WINS</h2>
+    <p id="result-detail">Enemy team eliminated.</p>
+    <div class="result-actions"><button id="play-again">PLAY AGAIN</button><button id="back-menu" class="secondary">CHANGE SETTINGS</button></div>
+  </div>
+</div>
+
+<div id="motion-lab" class="overlay hidden">
+  <div class="lab-card">
+    <div class="lab-header"><div><div class="result-kicker">CAMERA FIXER</div><h2>Motion Lab</h2></div><button id="close-motion-lab" class="secondary close-button">DONE</button></div>
+    <p>Hold one pose clearly, then tap its button. The game records what your model actually sees, even when the class name is kinda cooked.</p>
+    <div id="model-classes" class="model-classes">Enable the camera first.</div>
+    <div class="calibration-grid">
+      <button data-calibrate="rifle_fire">RECORD GUN FIRE</button>
+      <button data-calibrate="rifle_reload">RECORD GUN RELOAD</button>
+      <button data-calibrate="sniper_fire">RECORD SNIPER FIRE</button>
+      <button data-calibrate="sniper_reload">RECORD SNIPER RELOAD</button>
+      <button data-calibrate="jump">RECORD JUMP</button>
+      <button data-calibrate="roll">RECORD ROLL</button>
+      <button data-calibrate="neutral" class="secondary wide-cal">RECORD NEUTRAL / NOTHING</button>
+    </div>
+    <div id="calibration-status" class="status">No custom poses recorded yet.</div>
+    <button id="clear-calibration" class="danger-button">RESET MOTION CALIBRATION</button>
+  </div>
+</div>
+
 <div id="fatal"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="game.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/three@0.128.0/build/three.min.js'"></script>
+<script src="v5-core.js?v=5"></script>
+<script src="v5-world.js?v=5"></script>
+<script src="v5-avatar.js?v=5"></script>
+<script src="v5-combat.js?v=5"></script>
+<script src="v5-round.js?v=5"></script>
+<script src="v5-controls.js?v=5"></script>
+<script src="v5-motion.js?v=5"></script>
+<script src="v5-init.js?v=5"></script>
 </body>
 </html>
