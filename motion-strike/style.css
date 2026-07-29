@@ -1,0 +1,90 @@
+:root{
+  --ink:#f4f8ff;--muted:#9aa9c1;--panel:rgba(8,14,27,.92);
+  --line:rgba(126,162,214,.3);--blue:#54a8ff;--red:#ff5870;--gold:#ffd56a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  overscroll-behavior:none;touch-action:none}
+button,select,input{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+#game-root{position:fixed;inset:0;overflow:hidden}
+#game-root canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.screen{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 18% 15%,rgba(44,126,255,.24),transparent 34%),
+    radial-gradient(circle at 82% 12%,rgba(255,73,140,.18),transparent 32%),
+    linear-gradient(160deg,#101a31,#050811 68%)}
+.card{width:min(760px,96vw);max-height:96vh;overflow:auto;padding:26px;border:1px solid var(--line);border-radius:24px;
+  background:linear-gradient(145deg,rgba(18,29,52,.96),rgba(7,12,24,.96));box-shadow:0 35px 110px #000c,inset 0 1px rgba(255,255,255,.08)}
+.logo-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.title{margin:0;font-size:clamp(40px,9vw,82px);line-height:.86;font-weight:1000;letter-spacing:-.07em;
+  background:linear-gradient(110deg,#fff 20%,#77c2ff 55%,#ff7d9d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.badge{flex:none;padding:7px 10px;border-radius:999px;background:#13213b;border:1px solid #2b466e;color:#9ed2ff;
+  font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.subtitle{margin:7px 0 22px;color:var(--muted);font-weight:650}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.wide{grid-column:1/-1}
+label{display:block;margin-bottom:6px;color:#aebbd0;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+select,input,button{width:100%;min-height:46px;padding:11px 12px;border-radius:12px;border:1px solid #2a3c5c;background:#101a2d;color:#fff;outline:none}
+select:focus,input:focus{border-color:#5baeff;box-shadow:0 0 0 3px rgba(65,150,255,.16)}
+button{border:0;cursor:pointer;font-weight:950;letter-spacing:.02em;background:linear-gradient(135deg,#2587ff,#7753ff);box-shadow:0 8px 26px rgba(52,112,255,.28)}
+button.secondary{background:#17243a;border:1px solid #314762;box-shadow:none}
+button:disabled{opacity:.52;cursor:wait}
+.row{display:flex;gap:9px}
+.status{min-height:23px;color:var(--gold);font-weight:850}
+.hint{color:#91a0b8;font-size:12px;line-height:1.48}
+.hint b{color:#dbeaff}
+#hud{position:fixed;inset:0;z-index:10;display:none;pointer-events:none}
+.hud-top,.hud-bottom{position:absolute;left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:center}
+.hud-top{top:max(13px,env(safe-area-inset-top))}
+.hud-bottom{bottom:max(13px,env(safe-area-inset-bottom));align-items:flex-end}
+.pill{padding:8px 13px;border:1px solid rgba(134,166,212,.35);border-radius:999px;background:rgba(4,9,18,.78);
+  box-shadow:0 8px 26px #0007;backdrop-filter:blur(8px);font-size:14px;font-weight:950}
+.blue{color:var(--blue)}.red{color:var(--red)}
+.health-wrap{min-width:min(310px,48vw);padding:10px 12px;border:1px solid rgba(134,166,212,.3);border-radius:15px;background:rgba(4,9,18,.75);backdrop-filter:blur(8px)}
+.small{font-size:11px;font-weight:850;letter-spacing:.08em;color:#aab8cc}
+.bar{height:14px;margin:5px 0 7px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:#04070d;overflow:hidden}
+.bar>div{width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2ac77e,#9bea69);transition:width .14s}
+.ammo-panel{text-align:right;padding:9px 12px;border:1px solid rgba(134,166,212,.3);border-radius:15px;background:rgba(4,9,18,.75);backdrop-filter:blur(8px)}
+.ammo-main{font-size:34px;line-height:1;font-weight:1000}
+#crosshair,#hit-marker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:24px;height:24px}
+#crosshair:before,#crosshair:after{content:"";position:absolute;background:#fff;border-radius:2px;box-shadow:0 0 5px #000}
+#crosshair:before{width:24px;height:2px;top:11px}
+#crosshair:after{height:24px;width:2px;left:11px}
+#hit-marker{opacity:0;transition:opacity .08s}
+#hit-marker:before,#hit-marker:after{content:"";position:absolute;left:11px;top:1px;width:2px;height:22px;background:#fff;transform:rotate(45deg);box-shadow:0 0 5px #000}
+#hit-marker:after{transform:rotate(-45deg)}
+#action{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);color:var(--gold);font-size:23px;font-weight:1000;text-shadow:0 3px 8px #000}
+#kill-feed{position:absolute;right:max(15px,env(safe-area-inset-right));top:62px;width:min(330px,60vw);text-align:right;font-size:13px;font-weight:800}
+#kill-feed div{margin:5px 0;padding:5px 8px;border-radius:8px;background:rgba(3,7,14,.52);text-shadow:0 2px 5px #000}
+#damage-vignette{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .16s;background:radial-gradient(circle,transparent 45%,rgba(255,15,42,.68) 100%)}
+#scope{position:fixed;inset:0;z-index:9;display:none;pointer-events:none;background:
+  linear-gradient(90deg,transparent calc(50% - 1px),rgba(255,255,255,.4) 50%,transparent calc(50% + 1px)),
+  linear-gradient(0deg,transparent calc(50% - 1px),rgba(255,255,255,.4) 50%,transparent calc(50% + 1px)),
+  radial-gradient(circle at center,transparent 0 29%,rgba(0,0,0,.98) 30% 100%)}
+#scope:after{content:"";position:absolute;left:50%;top:50%;width:min(58vw,58vh);height:min(58vw,58vh);transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.3);border-radius:50%}
+#camera-panel{position:absolute;left:max(14px,env(safe-area-inset-left));top:62px;width:176px;padding:8px;border:1px solid rgba(134,166,212,.35);
+  border-radius:14px;background:rgba(4,9,18,.84);pointer-events:auto;backdrop-filter:blur(8px);display:none}
+#camera-panel canvas,#camera-panel video{width:100%;border-radius:9px}
+#camera-panel button{min-height:36px;padding:7px;font-size:11px}
+#prediction{margin-top:5px;color:#b9c7da;font-size:11px;line-height:1.3}
+#swipe-tip{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);padding:10px 14px;border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;background:rgba(4,9,18,.72);font-size:13px;font-weight:900;opacity:0;transition:opacity .35s}
+.mobile-controls{position:absolute;inset:0;display:none;pointer-events:none}
+#joystick{position:absolute;left:max(22px,env(safe-area-inset-left));bottom:max(92px,calc(env(safe-area-inset-bottom) + 80px));width:126px;height:126px;
+  border:1px solid rgba(255,255,255,.28);border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12),rgba(255,255,255,.035));pointer-events:auto;touch-action:none}
+#joystick-nub{position:absolute;left:41px;top:41px;width:44px;height:44px;border:1px solid rgba(255,255,255,.35);border-radius:50%;
+  background:rgba(154,203,255,.45);box-shadow:0 0 25px rgba(83,164,255,.35)}
+.mobile-buttons{position:absolute;right:max(15px,env(safe-area-inset-right));bottom:max(74px,calc(env(safe-area-inset-bottom) + 62px));display:grid;
+  grid-template-columns:repeat(3,62px);gap:8px;pointer-events:auto}
+.mobile-buttons button{height:58px;min-height:0;padding:4px;border:1px solid rgba(255,255,255,.24);border-radius:50%;background:rgba(16,31,55,.84);
+  box-shadow:0 5px 18px #0007;font-size:10px;touch-action:none}
+.mobile-buttons button.primary{background:rgba(44,116,230,.88)}
+.mobile-buttons button.active{outline:2px solid #7bc3ff;background:rgba(40,100,190,.96)}
+#fatal{position:fixed;left:12px;right:12px;bottom:12px;z-index:100;display:none;padding:12px;border:1px solid #ff6b7c;border-radius:12px;background:#2a0b12;color:#ffd7dd;font:700 12px/1.4 ui-monospace,monospace;white-space:pre-wrap}
+@media(max-width:800px),(pointer:coarse){
+  .grid{grid-template-columns:1fr}.wide{grid-column:auto}.card{padding:21px}.logo-row{align-items:center}.badge{display:none}
+  .mobile-controls{display:block}.health-wrap{min-width:42vw}.ammo-main{font-size:29px}#kill-feed{display:none}
+  #camera-panel{width:132px}.hud-bottom{bottom:max(10px,env(safe-area-inset-bottom))}
+}
